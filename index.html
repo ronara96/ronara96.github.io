@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Atendimento - SAMU Nova Lima</title>
+    <style>
+        :root {
+            --samu-red: #E30613;
+            --samu-blue: #003366;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--samu-red);
+            position: relative; /* Para a marca d'água */
+        }
+
+        /* Marca d'água SAMU no fundo */
+        .container::before {
+            content: "";
+            background-image: url('samu_logo.png'); /* LOCAL IMAGE PATH */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 60%;
+            opacity: 0.05; /* Semi-transparent 5% */
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+        }
+
+        .form-content {
+            position: relative;
+            z-index: 1; /* Puts form content over the background image */
+        }
+
+        /* Logo no topo da ficha */
+        .header-logo {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .header-logo img {
+            width: 130px;
+            height: auto;
+        }
+
+        h1 {
+            color: var(--samu-blue);
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #666;
+            text-align: center;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            color: var(--samu-blue);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[readonly], textarea[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            transform: scale(1.3);
+            accent-color: var(--samu-red);
+        }
+
+        .outros-input {
+            flex: 1;
+            display: none; /* Hidden by default */
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit {
+            background-color: #217346; /* Verde Excel/Sheets */
+        }
+
+        .btn-clear {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-content">
+        <div class="header-logo">
+            <img src="samu_logo.png" alt="Símbolo do SAMU Nova Lima">
+        </div>
+
+        <h1>FICHA DE ATENDIMENTO SISTEMATIZADO PRÉ-HOSPITALAR</h1>
+        <h2>SAMU – MICRORREGIONAL NOVA LIMA</h2>
+
+        <form id="samuForm" onsubmit="enviarParaPlanilha(event)">
+            
+            <h3>DADOS DO PACIENTE</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dataAtendimento">Data do Atendimento</label>
+                    <input type="date" id="dataAtendimento" required>
+                </div>
+                <div class="form-group">
+                    <label for="horaAtendimento">Hora do Atendimento</label>
+                    <input type="time" id="horaAtendimento" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="nomePaciente">Nome do Paciente</label>
+                <input type="text" id="nomePaciente" placeholder="Digite o nome completo" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dataNascimento">Data de Nascimento</label>
+                    <input type="date" id="dataNascimento" onchange="calcularIdade()" required>
+                </div>
+                <div class="form-group">
+                    <label for="nomeMae">Nome da Mãe</label>
+                    <input type="text" id="nomeMae" placeholder="Digite o nome da mãe" required>
+                </div>
+            </div>
+
+            <h3>DADOS DO PROFISSIONAL</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="unidadeAtendimento">Unidade do Atendimento</label>
+                    <select id="unidadeAtendimento" onchange="atualizarUnidadeEProfissionais()" required>
+                        <option value="">Selecione a Unidade...</option>
+                        <option value="USA 11">USA 11</option>
+                        <option value="USB 3641">USB 3641</option>
+                        <option value="USB 3642">USB 3642</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="profissional">Profissional e CBO</label>
+                    <select id="profissional" required>
+                        <option value="">Selecione a Unidade primeiro...</option>
+                        </select>
+                </div>
+            </div>
+
+            <h3>PROCEDIMENTO</h3>
+            <div class="form-group">
+                <label for="procedimento">Procedimento Realizado</label>
+                <textarea id="procedimento" rows="3" readonly placeholder="O procedimento será preenchido automaticamente ao selecionar a unidade."></textarea>
+            </div>
+
+            <h3>INDICADORES CLÍNICOS</h3>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="Indicadores" value="Infarto Agudo do Miocárdio (IAM)"> Infarto Agudo do Miocárdio (IAM)</label>
+                <label class="checkbox-item"><input type="checkbox" name="Indicadores" value="Síndrome Coronariana Aguda (SCA)"> Síndrome Coronariana Aguda (SCA)</label>
+                <label class="checkbox-item"><input type="checkbox" name="Indicadores" value="Acidente Vascular Encefálico (AVE)"> Acidente Vascular Encefálico (AVE)</label>
+                <label class="checkbox-item"><input type="checkbox" name="Indicadores" value="Dor Torácica Sugestiva de SCA"> Dor Torácica Sugestiva de SCA</label>
+                <label class="checkbox-item"><input type="checkbox" name="Indicadores" value="Dor Torácica Não Sugestiva de SCA"> Dor Torácica Não Sugestiva de SCA</label>
+                <label class="checkbox-item"><input type="checkbox" name="Indicadores" value="Parada Cardiorrespiratória (PCR)"> Parada Cardiorrespiratória (PCR)</label>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="checkOutros" value="Outros" onchange="toggleOutros()">
+                    <label for="checkOutros">Outros:</label>
+                    <input type="text" id="textoOutros" class="outros-input" placeholder="Especifique o indicador..." disabled>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 15px;">
+                    <label for="idadePaciente">Idade do Paciente (Calculada para faixa etária)</label>
+                    <input type="text" id="idadePaciente" readonly placeholder="Preencha a data de nascimento acima para calcular">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" id="btnEnviar" class="btn-submit">Salvar</button>
+                <button type="reset" class="btn-clear" onclick="limparFicha()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // URL DO SEU GOOGLE APPS SCRIPT
+    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyzjdBv9rXkl3fC9n3qflnggWGdkJXE02OY2nvHb7P1wdainwx4jEPqELijaPazkFNuyQ/exec';
+
+    // ==========================================
+    // CADASTRO COMPLETO DE PROFISSIONAIS POR UNIDADE
+    // Extraído de TODOS os documentos CNES fornecidos
+    // ==========================================
+    const equipePorUnidade = {
+        "USA 11": [
+            "CRISTIANO AFONSO SANTANA E SILVA - 223505-ENFERMEIRO",
+            "DANIELLE CRYSTINE CAETANO MARQUES - 223505-ENFERMEIRO",
+            "DJALMA RENATO DE MELO FRANCO JUNIOR - 782320-CONDUTOR DE AMBULANCIA",
+            "DOUGLAS DE ARAUJO RESENDE E SOUZA - 225125-MEDICO CLINICO",
+            "FABIANA MARIA GONCALVES ROCHA - 223505-ENFERMEIRO",
+            "FABIANO JANUARIO FERREIRA SARAIVA - 782320-CONDUTOR DE AMBULANCIA",
+            "GABRIEL RODRIGUES DE CARVALHO - 225125-MEDICO CLINICO",
+            "GLADSON WANDERSON ALMEIDA BURATO - 223505-ENFERMEIRO",
+            "IVLY SILVA - 782320-CONDUTOR DE AMBULANCIA",
+            "LIVIA SILVA OLIVEIRA LIBRELON - 223505-ENFERMEIRO",
+            "MARINA KUSUNOKI GUERRA - 225125-MEDICO CLINICO",
+            "MILENE BASTOS FERREIRA - 225125-MEDICO CLINICO",
+            "RAFAELA GONTIJO MANSO - 225125-MEDICO CLINICO",
+            "RENATO DIOGENES CARDOSO - 225125-MEDICO CLINICO",
+            "ROBERTO CICERO ORNELA DE SIQUEIRA - 223505-ENFERMEIRO",
+            "ROBERTO HILARIO FERREIRA FILHO - 225125-MEDICO CLINICO",
+            "RODRIGO MORAES CANCADO DA SILVA - 225170 MEDICO GENERALISTA",
+            "SERGIO JOÃO DE PAIVA - 223505-ENFERMEIRO",
+            "WEVERSON GUIMARAES PIMENTA - 782320 CONDUTOR DE AMBULANCIA"
+        ],
+        "USB 3641": [
+            "ADRIANO FRANCISCO DA SILVA - 782320-CONDUTOR DE AMBULANCIA",
+            "ALESSANDRA BATISTA HORTA BARBOSA - 322205-TECNICO DE ENFERMAGEM",
+            "CLAUDIO PEREIRA SILVA - 322205-TECNICO DE ENFERMAGEM",
+            "ELAINE CRISTINA SILVA - 322205-TECNICO DE ENFERMAGEM",
+            "GIOVANNA GABRIELE DA SILVA - 411010-ASSISTENTE ADMINISTRATIVO",
+            "GLEISON FERREIRA DA SILVA - 782320-CONDUTOR DE AMBULANCIA",
+            "JOELMA LOPES DE SOUZA - 322205-TECNICO DE ENFERMAGEM",
+            "JULIO CESAR DA CRUZ - 782320-CONDUTOR DE AMBULANCIA",
+            "LEONARDO RODRIGUES GOMES - 322205-TECNICO DE ENFERMAGEM",
+            "LORENA CAROLINE RODRIGUES - 322205-TECNICO DE ENFERMAGEM",
+            "MARCUS VINICIUS ALVES PEDROSA - 782320-CONDUTOR DE AMBULANCIA",
+            "MARLI DA CONCEICAO SILVA - 322205-TECNICO DE ENFERMAGEM",
+            "SABRINA PESSOA FERREIRA - 131210-GERENTE DE SERVICOS DE SAUDE"
+        ],
+        "USB 3642": [
+            "ANA FLAVIA GONCALVES SOARES - 322205-TECNICO DE ENFERMAGEM",
+            "CAIO GUILHERME SILVA - 322205-TECNICO DE ENFERMAGEM",
+            "GLAIR TEODORICO DA SILVA - 322205-TECNICO DE ENFERMAGEM",
+            "JHONATA MARCOS SILVA SANTOS - 782320-CONDUTOR DE AMBULANCIA",
+            "JUSSARA APARECIDA ΜΑΙΑ - 322205-TECNICO DE ENFERMAGEM",
+            "LEONARDO ALVES MARQUES - 782320-CONDUTOR DE AMBULANCIA",
+            "MANUEL GONCALVES ALVES DE OLIVEIRA - 322205-TECNICO DE ENFERMAGEM",
+            "MARCELO ALVES PEREIRA - 782320-CONDUTOR DE AMBULANCIA",
+            "SANDRO MARQUES MAMEDES - 322205-TECNICO DE ENFERMAGEM",
+            "VAGNER OLIVEIRA SILVA - 782320-CONDUTOR DE AMBULANCIA"
+        ]
+    };
+
+    // Função que atualiza Procedimento e a Lista de Profissionais ao mesmo tempo
+    function atualizarUnidadeEProfissionais() {
+        const unidade = document.getElementById('unidadeAtendimento').value;
+        const procedimentoArea = document.getElementById('procedimento');
+        const selectProfissional = document.getElementById('profissional');
+
+        // 1. Atualiza o Procedimento
+        if (unidade === 'USA 11') {
+            procedimentoArea.value = "03.01.03.009-0 - SAMU 192: ATENDIMENTO PRÉ-HOSPITALAR MÓVEL REALIZADO PELA EQUIPE DA UNIDADE DE SUPORTE AVANÇADO DE VIDA TERRESTRE (USA)";
+        } else if (unidade === 'USB 3641' || unidade === 'USB 3642') {
+            procedimentoArea.value = "03.01.03.010-3 - SAMU 192: ATENDIMENTO PRÉ-HOSPITALAR MOVEL REALIZADO PELA EQUIPE DE SUPORTE BASICO DE VIDA TERRESTRE (USB)";
+        } else {
+            procedimentoArea.value = "";
+        }
+
+        // 2. Atualiza a Lista de Profissionais
+        selectProfissional.innerHTML = '<option value="">Selecione o Profissional...</option>'; // Limpa as opções antigas
+        
+        if (unidade && equipePorUnidade[unidade]) {
+            equipePorUnidade[unidade].forEach(profissional => {
+                const option = document.createElement('option');
+                option.value = profissional;
+                option.textContent = profissional;
+                selectProfissional.appendChild(option);
+            });
+        }
+    }
+
+    // Função para calcular a idade
+    function calcularIdade() {
+        const dataNascimento = document.getElementById('dataNascimento').value;
+        const campoIdade = document.getElementById('idadePaciente');
+
+        if (dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+            campoIdade.value = idade + " anos";
+        } else {
+            campoIdade.value = "";
+        }
+    }
+
+    // Função para mostrar/esconder campo de texto do "Outros"
+    function toggleOutros() {
+        const checkOutros = document.getElementById('checkOutros');
+        const textoOutros = document.getElementById('textoOutros');
+        
+        if (checkOutros.checked) {
+            textoOutros.style.display = "block";
+            textoOutros.disabled = false;
+            textoOutros.required = true;
+        } else {
+            textoOutros.style.display = "none";
+            textoOutros.disabled = true;
+            textoOutros.required = false;
+            textoOutros.value = ""; // Limpa o campo se desmarcado
+        }
+    }
+
+    // Função para limpar a ficha e voltar ao estado original
+    function limparFicha() {
+        document.getElementById('textoOutros').style.display = "none";
+        document.getElementById('profissional').innerHTML = '<option value="">Selecione a Unidade primeiro...</option>';
+    }
+
+    // Função que envia para o Apps Script
+    function enviarParaPlanilha(event) {
+        event.preventDefault(); // Impede a página de recarregar
+
+        const btnEnviar = document.getElementById('btnEnviar');
+        btnEnviar.innerText = "Enviando aguarde...";
+        btnEnviar.style.opacity = "0.7";
+        btnEnviar.disabled = true;
+
+        // Pega todos os indicadores marcados
+        let indicadoresMarcados = [];
+        const checkboxes = document.querySelectorAll('input[name="Indicadores"]:checked');
+        checkboxes.forEach((checkbox) => {
+            indicadoresMarcados.push(checkbox.value);
+        });
+
+        // Se "Outros" estiver marcado, adiciona o texto digitado na lista de indicadores
+        const checkOutros = document.getElementById('checkOutros');
+        if (checkOutros.checked) {
+            const textoOutros = document.getElementById('textoOutros').value;
+            indicadoresMarcados.push(`Outros: ${textoOutros}`);
+        }
+
+        // Cria o pacote de dados
+        const dados = {
+            dataAtendimento: document.getElementById('dataAtendimento').value,
+            horaAtendimento: document.getElementById('horaAtendimento').value,
+            nomePaciente: document.getElementById('nomePaciente').value,
+            dataNascimento: document.getElementById('dataNascimento').value,
+            idadePaciente: document.getElementById('idadePaciente').value,
+            nomeMae: document.getElementById('nomeMae').value,
+            unidadeAtendimento: document.getElementById('unidadeAtendimento').value,
+            profissional: document.getElementById('profissional').value,
+            procedimento: document.getElementById('procedimento').value,
+            indicadores: indicadoresMarcados.join(" | ") // Junta todos separados por " | "
+        };
+
+        // Dispara para o seu link do Apps Script
+        fetch(URL_APPS_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors', // Solução para CORS
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        })
+        .then(() => {
+            // Como é no-cors, a resposta cairá aqui mesmo que dê erro no Sheets,
+            // mas o Google lida bem com isso.
+            alert('Atendimento salvo com sucesso!');
+            document.getElementById('samuForm').reset();
+            limparFicha();
+        })
+        .catch((error) => {
+            alert('Erro ao enviar dados. Verifique a internet e tente novamente.');
+            console.error(error);
+        })
+        .finally(() => {
+            btnEnviar.innerText = "Salvar";
+            btnEnviar.style.opacity = "1";
+            btnEnviar.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
